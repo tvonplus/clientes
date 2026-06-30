@@ -3,353 +3,320 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciador de Assinaturas Ultra</title>
+    <title>Gerenciador de Assinaturas Ultra Pro</title>
     <style>
+        /* Variáveis de Cores Base - Tema Azul Fixo */
         :root {
             --bg-color: #f4f7f6;
             --card-color: #ffffff;
-            --text-color: #333;
+            --text-color: #2c3e50;
+            --text-muted: #7f8c8d;
+            --border-color: #e2e8f0;
+            
             --primary-color: #4a90e2;
             --hoje-color: #ff9800;
             --vencido-color: #e74c3c;
             --normal-color: #2ecc71;
+            --purple-color: #9b59b6;
+            --shadow: rgba(0,0,0,0.05);
+
+            --base-font-size: 0.85rem; 
         }
+
+        /* Modos Dark Mode */
+        [data-mode="dark"] {
+            --bg-color: #1a202c;
+            --card-color: #2d3748;
+            --text-color: #f7fafc;
+            --text-muted: #a0aec0;
+            --border-color: #4a5568;
+            --shadow: rgba(0,0,0,0.25);
+        }
+
+        /* Tela de Login */
+        #login-screen {
+            position: fixed;
+            inset: 0;
+            background-color: #1a202c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .login-box {
+            background: #2d3748;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            text-align: center;
+            width: 100%;
+            max-width: 320px;
+        }
+        .login-box h2 { color: #f7fafc; margin-top: 0; margin-bottom: 20px; font-size: 1.2rem; }
+        .login-box input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #4a5568;
+            background: #1a202c;
+            color: white;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.1rem;
+            letter-spacing: 3px;
+            box-sizing: border-box;
+        }
+        .login-box button {
+            background: #4a90e2;
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .login-error { color: #e74c3c; font-size: 0.8rem; margin-top: 8px; display: none; }
+
+        /* App Main Container */
+        #app-container { display: none; }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: var(--base-font-size);
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding: 20px;
+            padding: 15px;
+            overflow-x: hidden;
+            transition: all 0.3s ease;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+        .container { max-width: 100%; margin: 0 auto; }
 
-        /* Topo super compacto */
         .header-area {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 15px;
             background: var(--card-color);
             padding: 10px 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px var(--shadow);
         }
 
-        h1 {
-            color: #2c3e50;
-            margin: 0;
-            font-size: 1.5rem;
-        }
+        h1 { color: var(--text-color); margin: 0; font-size: 1.3rem; }
 
-        .top-actions {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+        .controls-wrapper { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
 
-        /* Ícones minúsculos de backup */
-        .btn-icon-backup {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1.2rem;
-            padding: 5px;
-            transition: transform 0.2s;
-            color: #7f8c8d;
+        .theme-switch-wrapper { display: flex; align-items: center; gap: 8px; }
+        .theme-switch { inline-size: 44px; block-size: 22px; position: relative; display: inline-block; }
+        .theme-switch input { display: none; }
+        .slider { position: absolute; cursor: pointer; inset: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before {
+            position: absolute; content: "☀️"; display: flex; align-items: center; justify-content: center; font-size: 10px;
+            block-size: 16px; inline-size: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%;
         }
-        .btn-icon-backup:hover { transform: scale(1.2); color: #333; }
+        input:checked + .slider { background-color: var(--primary-color); }
+        input:checked + .slider:before { transform: translateX(22px); content: "🌙"; }
+
+        .top-actions { display: flex; align-items: center; gap: 8px; }
+        .btn-icon-top {
+            background: none; border: 1px solid var(--border-color); cursor: pointer; font-size: 1rem;
+            padding: 6px 10px; border-radius: 6px; color: var(--text-color); background-color: var(--card-color);
+            display: inline-flex; align-items: center; justify-content: center; height: 33px; box-sizing: border-box;
+        }
+        .btn-icon-top:hover { background-color: var(--bg-color); }
+        .btn-zerar-mini { border-color: #dc2626; color: #dc2626; font-size: 0.95rem; }
+        .btn-zerar-mini:hover { background-color: rgba(220, 38, 38, 0.1); }
         #input-file { display: none; }
 
-        .btn-novo {
-            background-color: var(--primary-color);
-            padding: 8px 16px;
-            font-size: 0.95rem;
-        }
-        .btn-novo:hover { background-color: #357abd; }
+        button { color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: var(--base-font-size); transition: background 0.2s, transform 0.1s; }
+        button:active { transform: scale(0.98); }
 
-        /* Dashboard */
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
+        .btn-novo { background-color: var(--primary-color); padding: 8px 14px; height: 33px; box-sizing: border-box; }
+        .btn-saida { background-color: #64748b; padding: 8px 14px; height: 33px; box-sizing: border-box; }
 
-        .card {
-            background: var(--card-color);
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border-left: 5px solid var(--primary-color);
-            position: relative;
-        }
+        /* Grid do Dashboard */
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 15px; }
+        .card { background: var(--card-color); padding: 12px 15px; border-radius: 8px; box-shadow: 0 4px 6px var(--shadow); border-inline-start: 5px solid var(--primary-color); transition: all 0.3s ease; }
+        .card.receber { border-inline-start-color: var(--hoje-color); }
+        .card.recebido-mes { border-inline-start-color: var(--normal-color); }
+        .card.saidas { border-inline-start-color: var(--vencido-color); }
+        .card.total-geral { border-inline-start-color: var(--purple-color); }
+        .card h3 { margin: 0 0 4px 0; font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .card p { margin: 0; font-size: 1.25rem; font-weight: bold; }
 
-        .card.receber { border-left-color: var(--hoje-color); }
-        .card.recebido { border-left-color: var(--normal-color); }
-        .card.clientes-qtd { border-left-color: #9b59b6; }
+        /* Animações de Alerta Piscante */
+        @keyframes pulsarAlertaVencido {
+            0% { background-color: rgba(231, 76, 60, 0.25); box-shadow: inset 0 0 0 1px var(--vencido-color); }
+            50% { background-color: transparent; }
+            100% { background-color: rgba(231, 76, 60, 0.25); box-shadow: inset 0 0 0 1px var(--vencido-color); }
+        }
+        @keyframes pulsarAlertaHoje {
+            0% { background-color: rgba(255, 152, 0, 0.25); box-shadow: inset 0 0 0 1px var(--hoje-color); }
+            50% { background-color: transparent; }
+            100% { background-color: rgba(255, 152, 0, 0.25); box-shadow: inset 0 0 0 1px var(--hoje-color); }
+        }
+        .status-vencido-piscando { animation: pulsarAlertaVencido 1.4s infinite !important; }
+        .status-hoje-piscando { animation: pulsarAlertaHoje 1.4s infinite !important; }
 
-        .card h3 { margin: 0 0 5px 0; font-size: 0.8rem; color: #7f8c8d; text-transform: uppercase; }
-        .card p { margin: 0; font-size: 1.5rem; font-weight: bold; }
+        /* Filtros e Pesquisa */
+        .search-filter-section { background: var(--card-color); padding: 10px 15px; border-radius: 8px; box-shadow: 0 4px 6px var(--shadow); margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+        .search-box { flex: 1; min-width: 200px; }
+        .search-box input { width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--text-color); border-radius: 6px; font-size: var(--base-font-size); box-sizing: border-box; }
+        .filter-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
+        .btn-filter { background-color: var(--bg-color); color: var(--text-muted); padding: 6px 12px; font-size: 0.8rem; border-radius: 6px; }
+        .btn-filter:hover { background-color: var(--border-color); }
+        .btn-filter.active { background-color: var(--primary-color); color: white; }
 
-        /* Melhoria 4: Alerta Visual Pulsante */
-        @keyframes pulsarAlerta {
-            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
-        }
-        .card-alerta-urgente {
-            animation: pulsarAlerta 2s infinite;
-            border: 1px solid var(--vencido-color) !important;
-            border-left: 5px solid var(--vencido-color) !important;
-        }
+        /* Layout de Duas Colunas */
+        .workspace-layout { display: grid; grid-template-columns: 3fr 1fr; gap: 15px; }
+        @media (max-width: 900px) { .workspace-layout { grid-template-columns: 1fr; } }
 
-        /* Melhoria 2: Seção de Filtros e Busca */
-        .search-filter-section {
-            background: var(--card-color);
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .search-box {
-            flex: 1;
-            min-width: 250px;
-            position: relative;
-        }
-        .search-box input {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 0.95rem;
-            box-sizing: border-box;
-        }
-        .filter-buttons {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .btn-filter {
-            background-color: #e2e8f0;
-            color: #4a5568;
-            padding: 6px 12px;
-            font-size: 0.85rem;
-            border-radius: 4px;
-            font-weight: 600;
-        }
-        .btn-filter:hover { background-color: #cbd5e1; }
-        .btn-filter.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
+        .table-section, .side-section { background: var(--card-color); padding: 15px; border-radius: 8px; box-shadow: 0 4px 6px var(--shadow); margin-bottom: 15px; }
+        .table-section { overflow-x: hidden; }
 
-        /* Janela Modal (Formulário Oculto) */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            z-index: 1000;
+        table { width: 100%; border-collapse: collapse; text-align: left; table-layout: fixed; }
+        th, td { padding: 8px 10px; border-bottom: 1px solid var(--border-color); font-size: 0.82rem; word-break: break-all; }
+        th { background-color: var(--bg-color); color: var(--text-color); font-weight: 600; }
+
+        /* Ajuste de Proporções para garantir o usuário inteiro em 1 linha */
+        th:nth-child(1), td:nth-child(1) { width: 18%; } /* Nome */
+        th:nth-child(2), td:nth-child(2) { width: 22%; } /* Usuário ampliado */
+        th:nth-child(3), td:nth-child(3) { width: 16%; } /* WhatsApp */
+        th:nth-child(4), td:nth-child(4) { width: 11%; } /* Valor */
+        th:nth-child(5), td:nth-child(5) { width: 11%; } /* Vencimento */
+        th:nth-child(6), td:nth-child(6) { width: 10%; } /* Situação */
+        th:nth-child(7), td:nth-child(7) { width: 12%; } /* Ações */
+
+        /* Estilo interativo para cópia de usuário (Forçado em uma linha inteira) */
+        .click-copiar { 
+            cursor: pointer; 
+            font-weight: 500; 
+            padding: 2px 4px; 
+            border-radius: 4px; 
+            transition: background 0.2s; 
+            white-space: nowrap; 
+            display: inline-block;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
+        .click-copiar:hover { background-color: rgba(74, 144, 226, 0.2); color: var(--primary-color); }
 
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .modal-content {
-            background: var(--card-color);
-            padding: 25px;
-            border-radius: 8px;
-            width: 100%;
-            max-width: 450px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            transform: translateY(-20px);
-            transition: transform 0.3s ease;
-        }
-
-        .modal-overlay.active .modal-content {
-            transform: translateY(0);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-
-        .modal-header h2 { margin: 0; font-size: 1.3rem; color: #2c3e50; }
-        .btn-fechar-modal {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #95a5a6;
-        }
-        .btn-fechar-modal:hover { color: #333; }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 15px;
-        }
-
-        .form-group label { margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; }
-        .form-group input {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        button {
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.2s;
-        }
-
-        .btn-salvar { background-color: var(--primary-color); padding: 10px 20px; }
-        .btn-salvar:hover { background-color: #357abd; }
-        .btn-cancelar { background-color: #95a5a6; padding: 10px 15px; }
-        .btn-cancelar:hover { background-color: #7f8c8d; }
-
-        /* Tabela */
-        .table-section {
-            background: var(--card-color);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            overflow-x: auto;
-            margin-bottom: 20px;
-        }
-
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-        th, td { padding: 12px 15px; border-bottom: 1px solid #ddd; }
-        th { background-color: #f8f9fa; color: #333; }
-
-        /* Status de Cores e Tags */
-        .status-hoje { background-color: #fff3cd !important; color: #856404; }
-        .status-vencido { background-color: #f8d7da !important; color: #721c24; }
-        .status-normal { background-color: #d4edda !important; color: #155724; }
-
-        .badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
+        .badge { padding: 3px 8px; border-radius: 50px; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; display: inline-block; }
         .badge-hoje { background-color: var(--hoje-color); color: white; }
         .badge-vencido { background-color: var(--vencido-color); color: white; }
         .badge-normal { background-color: var(--normal-color); color: white; }
 
-        .actions-cell { display: flex; gap: 5px; }
-        .btn-action { padding: 6px 10px; font-size: 0.85rem; }
+        .actions-cell { display: flex; gap: 4px; }
+        .btn-action { padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; }
         .btn-renovar { background-color: var(--normal-color); }
-        .btn-renovar:hover { background-color: #27ae60; }
         .btn-editar { background-color: #f1c40f; color: #333; }
-        .btn-editar:hover { background-color: #d4ac0d; }
         .btn-deletar { background-color: var(--vencido-color); }
-        .btn-deletar:hover { background-color: #c0392b; }
 
-        /* Melhoria 1: Estilização do Link Direto de Cobrança */
-        .whatsapp-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            text-decoration: none;
-            padding: 3px 6px;
-            border-radius: 4px;
-            background-color: rgba(46, 204, 113, 0.1);
-            transition: background 0.2s;
-        }
-        .whatsapp-link:hover {
-            background-color: rgba(46, 204, 113, 0.25);
-        }
+        .whatsapp-link { display: inline-flex; align-items: center; gap: 4px; text-decoration: none; padding: 4px 6px; border-radius: 6px; background-color: rgba(46, 204, 113, 0.15); color: var(--text-color); font-weight: 500; }
+        .whatsapp-icon { width: 13px; height: 13px; fill: #2ecc71; }
 
-        /* Melhoria 3: Aba de Histórico Recente */
-        .historico-section {
-            background: var(--card-color);
-            padding: 15px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        /* Modais */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 1000; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content { background: var(--card-color); padding: 20px; border-radius: 8px; width: 100%; max-width: 380px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); transform: translateY(-20px); transition: transform 0.3s ease; }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
+        .modal-header h2 { margin: 0; font-size: 1.1rem; }
+        .btn-fechar-modal { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text-muted); }
+        
+        .form-group { display: flex; flex-direction: column; margin-bottom: 12px; }
+        .form-group label { margin-bottom: 4px; font-weight: 600; font-size: 0.8rem; }
+        .form-group input, .form-group select { padding: 8px; border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--text-color); border-radius: 6px; font-size: var(--base-font-size); }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 15px; }
+        .btn-salvar { background-color: var(--primary-color); padding: 8px 16px; }
+        .btn-cancelar { background-color: var(--text-muted); padding: 8px 12px; }
+
+        .side-section h3 { margin: 0 0 10px 0; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; }
+        .scroll-list { list-style: none; padding: 0; margin: 0; max-height: 180px; overflow-y: auto; }
+        .scroll-item { display: flex; flex-direction: column; padding: 6px 0; border-bottom: 1px dashed var(--border-color); font-size: 0.78rem; }
+        .scroll-item-header { display: flex; justify-content: space-between; font-weight: bold; }
+        .scroll-item-meta { color: var(--text-muted); font-size: 0.72rem; margin-top: 2px; }
+
+        /* Notificação Flutuante de Cópia */
+        #toast-copia {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(46, 204, 113, 0.9); color: white; padding: 8px 16px;
+            border-radius: 50px; font-weight: bold; font-size: 0.8rem; z-index: 10000;
+            display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
-        .historico-section h3 { margin: 0 0 10px 0; font-size: 1rem; color: #2c3e50; display: flex; align-items: center; gap: 8px;}
-        .historico-list { list-style: none; padding: 0; margin: 0; max-height: 120px; overflow-y: auto; }
-        .historico-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            border-bottom: 1px dashed #eee;
-            font-size: 0.88rem;
-            color: #555;
-        }
-        .historico-item:last-child { border-bottom: none; }
-        .historico-tempo { color: #95a5a6; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div id="login-screen">
+    <div class="login-box">
+        <h2>Acesso Protegido</h2>
+        <form onsubmit="verificarSenha(event)">
+            <input type="password" id="input-senha" placeholder="••••••" required autocomplete="off">
+            <button type="submit">Entrar no Sistema</button>
+        </form>
+        <div id="login-erro" class="login-error">Senha incorreta. Tente novamente.</div>
+    </div>
+</div>
+
+<div id="app-container" class="container">
     
     <div class="header-area">
-        <h1>Assinaturas</h1>
-        <div class="top-actions">
-            <button class="btn-icon-backup" onclick="exportarDados()" title="Exportar Backup">📤</button>
-            <button class="btn-icon-backup" onclick="document.getElementById('input-file').click()" title="Importar Backup">📥</button>
-            <input type="file" id="input-file" accept=".json" onchange="importarDados(event)">
+        <h1>Painel Financeiro & Assinaturas</h1>
+        <div class="controls-wrapper">
             
-            <button class="btn-novo" onclick="abrirModal()">+ Novo Cliente</button>
+            <div class="theme-switch-wrapper">
+                <label class="theme-switch">
+                    <input type="checkbox" id="dark-toggle" onchange="toggleDarkMode(this)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="top-actions">
+                <button class="btn-icon-top" onclick="exportarDados()" title="Exportar Backup">📤</button>
+                <button class="btn-icon-top" onclick="document.getElementById('input-file').click()" title="Importar Backup">📥</button>
+                <input type="file" id="input-file" accept=".json" onchange="importarDados(event)">
+                
+                <button class="btn-icon-top btn-zerar-mini" onclick="zerarLancamentosMes()" title="Zerar Mês Corrente">🔄</button>
+                
+                <button class="btn-saida" onclick="abrirModalSaida()">+ Registrar Saída</button>
+                <button class="btn-novo" onclick="abrirModal()">+ Novo Cliente</button>
+            </div>
         </div>
     </div>
 
     <div class="dashboard">
-        <div class="card clientes-qtd" id="card-qtd-total">
-            <h3>Clientes</h3>
+        <div class="card" id="card-qtd-total">
+            <h3>Clientes Ativos</h3>
             <p id="dash-qtd">0</p>
         </div>
         <div class="card receber">
-            <h3>A Receber</h3>
+            <h3>A Receber no Mês</h3>
             <p id="dash-receber">R$ 0,00</p>
         </div>
-        <div class="card recebido">
-            <h3>Já Recebido</h3>
-            <p id="dash-recebido">R$ 0,00</p>
+        <div class="card recebido-mes">
+            <h3>Recebido no Mês</h3>
+            <p id="dash-recebido-mes">R$ 0,00</p>
         </div>
         <div class="card">
-            <h3>Total Geral</h3>
-            <p id="dash-total">R$ 0,00</p>
+            <h3>Recebido Total</h3>
+            <p id="dash-recebido-total">R$ 0,00</p>
+        </div>
+        <div class="card saidas">
+            <h3>Saídas no Mês</h3>
+            <p id="dash-saidas-mes">R$ 0,00</p>
+        </div>
+        <div class="card total-geral">
+            <h3>Saldo Líquido Geral</h3>
+            <p id="dash-saldo-liquido">R$ 0,00</p>
         </div>
     </div>
 
@@ -365,79 +332,178 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="modal-cliente">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modal-title">Cadastrar Novo Cliente</h2>
-                <button class="btn-fechar-modal" onclick="fecharModal()">&times;</button>
-            </div>
-            <form id="cadastro-form" onsubmit="salvarCliente(event)">
-                <input type="hidden" id="edit-id" value="">
-                
-                <div class="form-group">
-                    <label for="nome">Nome</label>
-                    <input type="text" id="nome" required>
-                </div>
-                <div class="form-group">
-                    <label for="usuario">Usuário</label>
-                    <input type="text" id="usuario" required>
-                </div>
-                <div class="form-group">
-                    <label for="whatsapp">WhatsApp</label>
-                    <input type="tel" id="whatsapp" placeholder="Ex: 5511999999999" required>
-                </div>
-                <div class="form-group">
-                    <label for="valor">Valor (R$)</label>
-                    <input type="number" id="valor" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label for="vencimento">Data de Vencimento</label>
-                    <input type="date" id="vencimento" required>
-                </div>
-                
-                <div class="modal-footer">
-                    <button type="button" class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
-                    <button type="submit" class="btn-salvar" id="btn-submit-form">Salvar</button>
-                </div>
-            </form>
+    <div class="workspace-layout">
+        
+        <div class="table-section">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Usuário</th>
+                        <th>WhatsApp</th>
+                        <th>Valor</th>
+                        <th>Vencimento</th>
+                        <th>Situação</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-clientes"></tbody>
+            </table>
         </div>
-    </div>
 
-    <div class="table-section">
-        <table>
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>Usuário</th>
-                    <th>WhatsApp (Cobrança)</th>
-                    <th>Valor</th>
-                    <th>Vencimento</th>
-                    <th>Situação</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody id="tabela-clientes">
-            </tbody>
-        </table>
-    </div>
+        <div class="side-panel">
+            <div class="side-section">
+                <h3>📜 Renovações Recentes</h3>
+                <ul id="lista-historico" class="scroll-list"></ul>
+            </div>
+            
+            <div class="side-section">
+                <h3>💸 Histórico de Saídas</h3>
+                <ul id="lista-saidas" class="scroll-list"></ul>
+            </div>
+        </div>
 
-    <div class="historico-section">
-        <h3>📜 Renovações Recentes (Últimas 48h)</h3>
-        <ul id="lista-historico" class="historico-list">
-            </ul>
     </div>
 </div>
 
-<script>
-    let clientes = JSON.parse(localStorage.getItem('clientes')) || [];
-    let historicoRenovacoes = JSON.parse(localStorage.getItem('historicoRenovacoes')) || [];
-    let filtroAtual = 'todos';
+<div class="modal-overlay" id="modal-cliente">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modal-title">Cadastrar Novo Cliente</h2>
+            <button class="btn-fechar-modal" onclick="fecharModal()">&times;</button>
+        </div>
+        <form id="cadastro-form" onsubmit="salvarCliente(event)">
+            <input type="hidden" id="edit-id" value="">
+            <div class="form-group">
+                <label for="nome">Nome</label>
+                <input type="text" id="nome" required>
+            </div>
+            <div class="form-group">
+                <label for="usuario">Usuário</label>
+                <input type="text" id="usuario" required>
+            </div>
+            <div class="form-group">
+                <label for="whatsapp">WhatsApp</label>
+                <input type="tel" id="whatsapp" placeholder="Ex: 5511999999999" required>
+            </div>
+            <div class="form-group">
+                <label for="valor">Valor (R$)</label>
+                <input type="number" id="valor" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="vencimento">Data de Vencimento</label>
+                <input type="date" id="vencimento" required>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+                <button type="submit" class="btn-salvar" id="btn-submit-form">Salvar</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-    // Controle de abertura da janela modal
-    function abrirModal() {
-        document.getElementById('modal-cliente').classList.add('active');
+<div class="modal-overlay" id="modal-saida">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Registrar Saída Financeira</h2>
+            <button class="btn-fechar-modal" onclick="fecharModalSaida()">&times;</button>
+        </div>
+        <form id="saida-form" onsubmit="salvarSaida(event)">
+            <div class="form-group">
+                <label for="saida-motivo">Motivo / Descrição da Saída</label>
+                <input type="text" id="saida-motivo" placeholder="Ex: Servidor, Internet, Luz" required>
+            </div>
+            <div class="form-group">
+                <label for="saida-valor">Valor da Saída (R$)</label>
+                <input type="number" id="saida-valor" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="saida-data">Data do Gasto</label>
+                <input type="date" id="saida-data" required>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancelar" onclick="fecharModalSaida()">Cancelar</button>
+                <button type="submit" class="btn-salvar" style="background-color: var(--vencido-color);">Confirmar Saída</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="toast-copia">Copiado com sucesso!</div>
+
+<script>
+    // Validador de Senha
+    function verificarSenha(event) {
+        event.preventDefault();
+        const senhaInserida = document.getElementById('input-senha').value;
+        if (senhaInserida === "301092") {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-container').style.display = 'block';
+            filtrarETela();
+        } else {
+            document.getElementById('login-erro').style.display = 'block';
+            document.getElementById('input-senha').value = '';
+        }
     }
 
+    // Inicialização de Estados do LocalStorage
+    let clientes = JSON.parse(localStorage.getItem('clientes')) || [];
+    let historicoRenovacoes = JSON.parse(localStorage.getItem('historicoRenovacoes')) || [];
+    let lancamentosSaidas = JSON.parse(localStorage.getItem('lancamentosSaidas')) || [];
+    let filtroAtual = 'todos';
+
+    function formatarMoeda(valor) {
+        return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function toggleDarkMode(checkbox) {
+        if(checkbox.checked) {
+            document.documentElement.setAttribute('data-mode', 'dark');
+            localStorage.setItem('theme-mode', 'dark');
+        } else {
+            document.documentElement.setAttribute('data-mode', 'light');
+            localStorage.setItem('theme-mode', 'light');
+        }
+    }
+
+    (function carregarPreferenciasVisuais() {
+        const modoSalvo = localStorage.getItem('theme-mode') || 'light';
+        if(modoSalvo === 'dark') {
+            const toggle = document.getElementById('dark-toggle');
+            if(toggle) toggle.checked = true;
+            document.documentElement.setAttribute('data-mode', 'dark');
+        }
+    })();
+
+    // Sistema de Copiar Usuário por Clique
+    function copiarTexto(texto) {
+        navigator.clipboard.writeText(texto).then(() => {
+            const toast = document.getElementById('toast-copia');
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 1800);
+        });
+    }
+
+    // Zerador Estrutural do Mês Vigente
+    function zerarLancamentosMes() {
+        const conf1 = confirm("⚠️ ATENÇÃO: Você está prestes a limpar todos os dados de RECEBIMENTOS e SAÍDAS do sistema!");
+        if (conf1) {
+            const conf2 = confirm("🚨 CONFIRMAÇÃO FINAL: Os clientes continuarão cadastrados, mas todo o histórico financeiro e relatórios mensais serão limpos. Deseja continuar?");
+            if (conf2) {
+                clientes = clientes.map(c => {
+                    c.historicoRecebidos = [];
+                    return c;
+                });
+                historicoRenovacoes = [];
+                lancamentosSaidas = [];
+                
+                atualizarStorageETela();
+                alert("Dados limpos com sucesso! O painel foi reajustado.");
+            }
+        }
+    }
+
+    function abrirModal() { document.getElementById('modal-cliente').classList.add('active'); }
     function fecharModal() {
         document.getElementById('modal-cliente').classList.remove('active');
         document.getElementById('edit-id').value = "";
@@ -445,11 +511,17 @@
         document.getElementById('modal-title').innerText = "Cadastrar Novo Cliente";
         document.getElementById('btn-submit-form').innerText = "Salvar";
     }
+    function abrirModalSaida() { 
+        document.getElementById('saida-data').value = new Date().toLocaleDateString('en-CA');
+        document.getElementById('modal-saida').classList.add('active'); 
+    }
+    function fecharModalSaida() {
+        document.getElementById('modal-saida').classList.remove('active');
+        document.getElementById('saida-form').reset();
+    }
 
-    // Salvar/Editar Cliente
     function salvarCliente(event) {
         event.preventDefault();
-
         const idHidden = document.getElementById('edit-id').value;
         const nome = document.getElementById('nome').value;
         const usuario = document.getElementById('usuario').value;
@@ -467,35 +539,26 @@
         } else {
             const novoCliente = {
                 id: Date.now(),
-                nome,
-                usuario,
-                whatsapp,
-                valor,
-                vencimento,
-                pagoNoMes: false
+                nome, usuario, whatsapp, valor, vencimento,
+                historicoRecebidos: []
             };
             clientes.push(novoCliente);
         }
-
         atualizarStorageETela();
         fecharModal();
     }
 
-    // Abrir modal já com os dados preenchidos para Edição
     function editarCliente(id) {
         const cliente = clientes.find(c => c.id === id);
         if (!cliente) return;
-
         document.getElementById('edit-id').value = cliente.id;
         document.getElementById('nome').value = cliente.nome;
         document.getElementById('usuario').value = cliente.usuario;
         document.getElementById('whatsapp').value = cliente.whatsapp;
         document.getElementById('valor').value = cliente.valor;
         document.getElementById('vencimento').value = cliente.vencimento;
-
         document.getElementById('modal-title').innerText = "✏️ Editar Cliente";
         document.getElementById('btn-submit-form').innerText = "Atualizar";
-        
         abrirModal();
     }
 
@@ -508,62 +571,41 @@
                 let ano = dataAtual.getFullYear();
                 let mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
                 let dia = String(dataAtual.getDate()).padStart(2, '0');
-                
                 const novaData = `${ano}-${mes}-${dia}`;
                 
-                // Melhoria 3: Adiciona o evento de renovação ao histórico
-                adicionarAoHistorico(cliente.nome, cliente.usuario);
-
-                return {
-                    ...cliente,
-                    vencimento: novaData,
-                    pagoNoMes: true
+                if(!cliente.historicoRecebidos) cliente.historicoRecebidos = [];
+                
+                const logPagamento = {
+                    dataPagamento: new Date().toLocaleDateString('en-CA'),
+                    valorPago: cliente.valor,
+                    timestamp: Date.now()
                 };
+
+                cliente.historicoRecebidos.push(logPagamento);
+                adicionarAoHistorico(cliente.nome, cliente.usuario, cliente.valor);
+
+                return { ...cliente, vencimento: novaData };
             }
             return cliente;
         });
-
         atualizarStorageETela();
     }
 
-    // Melhoria 3: Gerencia a lista de histórico (expira eventos com mais de 48h)
-    function adicionarAoHistorico(nome, usuario) {
-        const novoEvento = {
-            id: Date.now(),
-            nome: nome,
-            usuario: usuario,
-            timestamp: new Date().getTime()
-        };
-        historicoRenovacoes.unshift(novoEvento); // bota no topo
-        localStorage.setItem('historicoRenovacoes', JSON.stringify(historicoRenovacoes));
+    function salvarSaida(event) {
+        event.preventDefault();
+        const motivo = document.getElementById('saida-motivo').value;
+        const valor = parseFloat(document.getElementById('saida-valor').value);
+        const data = document.getElementById('saida-data').value;
+
+        const novaSaida = { id: Date.now(), motivo, valor, data };
+        lancamentosSaidas.unshift(novaSaida);
+        fecharModalSaida();
+        atualizarStorageETela();
     }
 
-    function renderizarHistorico() {
-        const lista = document.getElementById('lista-historico');
-        lista.innerHTML = '';
-        
-        const agora = new Date().getTime();
-        const quarentaEOitoHoras = 48 * 60 * 60 * 1000;
-
-        // Filtra para remover itens mais velhos que 48 horas
-        historicoRenovacoes = historicoRenovacoes.filter(item => (agora - item.timestamp) < quarentaEOitoHoras);
-        localStorage.setItem('historicoRenovacoes', JSON.stringify(historicoRenovacoes));
-
-        if(historicoRenovacoes.length === 0) {
-            lista.innerHTML = `<li class="historico-item" style="color:#7f8c8d; justify-content:center;">Nenhuma renovação recente nas últimas 48h.</li>`;
-            return;
-        }
-
-        historicoRenovacoes.forEach(item => {
-            const dataHora = new Date(item.timestamp).toLocaleString('pt-BR', {hour: '2-digit', minute:'2-digit', day: '2-digit', month: '2-digit'});
-            const li = document.createElement('li');
-            li.className = 'historico-item';
-            li.innerHTML = `
-                <span>Renovado: <strong>${item.nome}</strong> (${item.usuario})</span>
-                <span class="historico-tempo">${dataHora}</span>
-            `;
-            lista.appendChild(li);
-        });
+    function adicionarAoHistorico(nome, usuario, valor) {
+        const novoEvento = { id: Date.now(), nome, usuario, valor, timestamp: Date.now() };
+        historicoRenovacoes.unshift(novoEvento);
     }
 
     function deletarCliente(id) {
@@ -573,76 +615,6 @@
         }
     }
 
-    function exportarDados() {
-        const dadosStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(clientes, null, 2));
-        const downloadAnchor = document.createElement('a');
-        downloadAnchor.setAttribute("href", dadosStr);
-        downloadAnchor.setAttribute("download", `backup_clientes_${new Date().toISOString().split('T')[0]}.json`);
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
-    }
-
-    function importarDados(event) {
-        const arquivo = event.target.files[0];
-        if (!arquivo) return;
-
-        const leitor = new FileReader();
-        leitor.onload = function(e) {
-            try {
-                const dadosImportados = JSON.parse(e.target.result);
-                if (Array.isArray(dadosImportados)) {
-                    if (confirm("Deseja substituir os dados atuais por este backup?")) {
-                        clientes = dadosImportados;
-                        atualizarStorageETela();
-                        alert("Backup importado com sucesso!");
-                    }
-                } else {
-                    alert("Arquivo inválido.");
-                }
-            } catch (erro) {
-                alert("Erro ao ler o arquivo.");
-            }
-        };
-        leitor.readAsText(arquivo);
-        document.getElementById('input-file').value = "";
-    }
-
-    function atualizarStorageETela() {
-        localStorage.setItem('clientes', JSON.stringify(clientes));
-        filtrarETela();
-        calcularDashboard();
-        renderizarHistorico();
-    }
-
-    function formatarData(dataString) {
-        const [ano, mes, dia] = dataString.split('-');
-        return `${dia}/${mes}/${ano}`;
-    }
-
-    function formatarMoeda(valor) {
-        return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    }
-
-    // Melhoria 1: Gerador Inteligente de Link de Mensagem para o WhatsApp
-    function gerarLinkWhatsapp(cliente, status) {
-        const numeroLimpo = cliente.whatsapp.replace(/\D/g, '');
-        const valorFormatado = formatarMoeda(cliente.valor);
-        const dataFormatada = formatarData(cliente.vencimento);
-        let mensagem = "";
-
-        if (status === 'atrasado') {
-            mensagem = `Olá ${cliente.nome}, notamos que sua assinatura com o usuário *[${cliente.usuario}]* venceu em ${dataFormatada} no valor de ${valorFormatado}. Como prefere realizar o pagamento?`;
-        } else if (status === 'hoje') {
-            mensagem = `Olá ${cliente.nome}, passando para lembrar que sua assinatura com o usuário *[${cliente.usuario}]* vence hoje (${dataFormatada}) no valor de ${valorFormatado}. Estamos à disposição para realizar a renovação e manter seu acesso ativo. Qualquer dúvida, é só nos chamar!`;
-        } else {
-            mensagem = `Olá ${cliente.nome}, tudo bem? Aqui está o seu link de contato para o usuário *[${cliente.usuario}]*.`;
-        }
-
-        return `https://wa.me/${numeroLimpo}?text=${encodeURIComponent(mensagem)}`;
-    }
-
-    // Melhoria 2: Controle Dinâmico dos botões de Filtro
     function mudarFiltro(tipo) {
         filtroAtual = tipo;
         document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
@@ -650,153 +622,171 @@
         filtrarETela();
     }
 
-    // Melhoria 2: Engine de Busca Integrada com Filtros de Status
+    function obterSituacaoCliente(dataVencimentoStr) {
+        const hoje = new Date(); hoje.setHours(0,0,0,0);
+        const vencimento = new Date(dataVencimentoStr + 'T00:00:00'); vencimento.setHours(0,0,0,0);
+        if (vencimento.getTime() === hoje.getTime()) return 'hoje';
+        return (vencimento < hoje) ? 'atrasado' : 'emdia';
+    }
+
     function filtrarETela() {
+        if(document.getElementById('login-screen').style.display !== 'none') return;
+
+        // --- ALTERAÇÃO AQUI: Ordena os clientes por data de vencimento (Mais antigo primeiro) ---
+        clientes.sort((a, b) => new Date(a.vencimento + 'T00:00:00') - new Date(b.vencimento + 'T00:00:00'));
+
+        const busca = document.getElementById('input-busca').value.toLowerCase();
         const tbody = document.getElementById('tabela-clientes');
         tbody.innerHTML = '';
 
-        const textoBusca = document.getElementById('input-busca').value.toLowerCase();
-        const hoje = new Date();
-        hoje.setHours(0,0,0,0);
+        const dataAgora = new Date();
+        const mesAtual = dataAgora.getMonth(); 
+        const anoAtual = dataAgora.getFullYear();
 
-        // Ordenação Padrão por proximidade
-        const clientesOrdenados = [...clientes].sort((a, b) => {
-            return new Date(a.vencimento + 'T00:00:00') - new Date(b.vencimento + 'T00:00:00');
-        });
-
-        clientesOrdenados.forEach(cliente => {
-            const dataVencimento = new Date(cliente.vencimento + 'T00:00:00');
-            dataVencimento.setHours(0,0,0,0);
-
-            let classeStatus = 'status-normal';
-            let textoStatus = 'Em dia';
-            let classeBadge = 'badge-normal';
-            let tipoStatus = 'emdia';
-            
-            if (dataVencimento.getTime() === hoje.getTime()) {
-                classeStatus = 'status-hoje';
-                textoStatus = 'Vence Hoje';
-                classeBadge = 'badge-hoje';
-                tipoStatus = 'hoje';
-            } else if (dataVencimento < hoje) {
-                classeStatus = 'status-vencido';
-                textoStatus = 'Atrasado';
-                classeBadge = 'badge-vencido';
-                tipoStatus = 'atrasado';
-            }
-
-            // Aplicar Filtro de Botão
-            if (filtroAtual !== 'todos' && filtroAtual !== tipoStatus) return;
-
-            // Aplicar Filtro de Barra de Busca (Nome ou Usuário)
-            const atendeBusca = cliente.nome.toLowerCase().includes(textoBusca) || cliente.usuario.toLowerCase().includes(textoBusca);
-            if (!atendeBusca) return;
-
-            // Link Customizado com Mensagem Automática
-            const linkWhats = gerarLinkWhatsapp(cliente, tipoStatus);
-
-            const tr = document.createElement('tr');
-            tr.className = classeStatus;
-
-            tr.innerHTML = `
-                <td><strong>${cliente.nome}</strong></td>
-                <td>${cliente.usuario}</td>
-                <td>
-                    <a href="${linkWhats}" target="_blank" class="whatsapp-link" style="color: inherit; font-weight: bold;" title="Clique para enviar mensagem automática">
-                        💬 ${cliente.whatsapp}
-                    </a>
-                </td>
-                <td>${formatarMoeda(cliente.valor)}</td>
-                <td>${formatarData(cliente.vencimento)}</td>
-                <td><span class="badge ${classeBadge}">${textoStatus}</span></td>
-                <td class="actions-cell">
-                    <button class="btn-action btn-renovar" onclick="renovarCliente(${cliente.id})">Renovar</button>
-                    <button class="btn-action btn-editar" onclick="editarCliente(${cliente.id})">✏️</button>
-                    <button class="btn-action btn-deletar" onclick="deletarCliente(${cliente.id})">X</button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    function calcularDashboard() {
-        let totalGeral = 0;
-        let totalRecebido = 0;
-        let totalAReceber = 0;
-        let possuiUrgente = false;
-
-        const hoje = new Date();
-        hoje.setHours(0,0,0,0);
+        let totalAAtivos = 0;
+        let totalAReceberMes = 0;
+        let totalRecebidoMes = 0;
+        let totalRecebidoGeral = 0;
+        let totalSaidasMes = 0;
 
         clientes.forEach(cliente => {
-            totalGeral += cliente.valor;
-            if (cliente.pagoNoMes) {
-                totalRecebido += cliente.valor;
-            } else {
-                totalAReceber += cliente.valor;
+            totalAAtivos++;
+            const situacao = obterSituacaoCliente(cliente.vencimento);
+            const dataVenc = new Date(cliente.vencimento + 'T00:00:00');
+            
+            if (dataVenc.getMonth() === mesAtual && dataVenc.getFullYear() === anoAtual && situacao !== 'emdia') {
+                totalAReceberMes += cliente.valor;
+            } else if (situacao === 'atrasado') {
+                totalAReceberMes += cliente.valor;
             }
 
-            // Checagem para gatilho de urgências (Atrasado ou Vence Hoje)
-            const dataVenc = new Date(cliente.vencimento + 'T00:00:00');
-            dataVenc.setHours(0,0,0,0);
-            if (dataVenc <= hoje) {
-                possuiUrgente = true;
+            if(cliente.historicoRecebidos) {
+                cliente.historicoRecebidos.forEach(pag => {
+                    totalRecebidoGeral += pag.valorPago;
+                    const dataPag = new Date(pag.dataPagamento + 'T00:00:00');
+                    if(dataPag.getMonth() === mesAtual && dataPag.getFullYear() === anoAtual) {
+                        totalRecebidoMes += pag.valorPago;
+                    }
+                });
+            }
+
+            const atendeBusca = cliente.nome.toLowerCase().includes(busca) || cliente.usuario.toLowerCase().includes(busca);
+            const atendeFiltro = (filtroAtual === 'todos') || (filtroAtual === situacao);
+
+            if (atendeBusca && atendeFiltro) {
+                let badgeClass = 'badge-normal';
+                let rowClass = '';
+                let textoSituacao = 'Em Dia';
+
+                if (situacao === 'hoje') { badgeClass = 'badge-hoje'; rowClass = 'status-hoje-piscando'; textoSituacao = 'Vence Hoje'; }
+                else if (situacao === 'atrasado') { badgeClass = 'badge-vencido'; rowClass = 'status-vencido-piscando'; textoSituacao = 'Atrasado'; }
+
+                const tr = document.createElement('tr');
+                tr.className = rowClass;
+                tr.innerHTML = `
+                    <td>${cliente.nome}</td>
+                    <td><span class="click-copiar" onclick="copiarTexto('${cliente.usuario}')" title="Clique para copiar">${cliente.usuario}</span></td>
+                    <td>
+                        <a class="whatsapp-link" href="https://wa.me/${cliente.whatsapp}" target="_blank">
+                            <svg class="whatsapp-icon" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.713-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.963C16.428 2.016 13.97 1.01 11.35 1.01c-5.44 0-9.866 4.372-9.87 9.802 0 1.689.451 3.337 1.309 4.766L1.742 22l6.539-1.701c1.5.819 3.012 1.25 4.366 1.25z"/></svg>
+                            ${cliente.whatsapp}
+                        </a>
+                    </td>
+                    <td>${formatarMoeda(cliente.valor)}</td>
+                    <td>${cliente.vencimento.split('-').reverse().join('/')}</td>
+                    <td><span class="badge ${badgeClass}">${textoSituacao}</span></td>
+                    <td class="actions-cell">
+                        <button class="btn-action btn-renovar" onclick="renovarCliente(${cliente.id})" title="Renovar +1 Mês">✅</button>
+                        <button class="btn-action btn-editar" onclick="editarCliente(${cliente.id})" title="Editar">✏️</button>
+                        <button class="btn-action btn-deletar" onclick="deletarCliente(${cliente.id})" title="Excluir">❌</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
             }
         });
 
-        document.getElementById('dash-qtd').innerText = clientes.length;
-        document.getElementById('dash-total').innerText = formatarMoeda(totalGeral);
-        document.getElementById('dash-recebido').innerText = formatarMoeda(totalRecebido);
-        document.getElementById('dash-receber').innerText = formatarMoeda(totalAReceber);
-
-        // Melhoria 4: Alerta Visual e Sonoro Discreto no Dashboard
-        const cardQtd = document.getElementById('card-qtd-total');
-        if (possuiUrgente) {
-            if(!cardQtd.classList.contains('card-alerta-urgente')){
-                cardQtd.classList.add('card-alerta-urgente');
-                executarSomAlerta(); // Toca som discreto uma vez ao detectar pendência na sessão
+        lancamentosSaidas.forEach(saida => {
+            const dataSaida = new Date(saida.data + 'T00:00:00');
+            if(dataSaida.getMonth() === mesAtual && dataSaida.getFullYear() === anoAtual) {
+                totalSaidasMes += saida.valor;
             }
-        } else {
-            cardQtd.classList.remove('card-alerta-urgente');
-        }
+        });
+
+        renderizarListasLaterais();
+
+        document.getElementById('dash-qtd').innerText = totalAAtivos;
+        document.getElementById('dash-receber').innerText = formatarMoeda(totalAReceberMes);
+        document.getElementById('dash-recebido-mes').innerText = formatarMoeda(totalRecebidoMes);
+        document.getElementById('dash-recebido-total').innerText = formatarMoeda(totalRecebidoGeral);
+        document.getElementById('dash-saidas-mes').innerText = formatarMoeda(totalSaidasMes);
+        
+        let todasSaidasHistoricas = lancamentosSaidas.reduce((acc, s) => acc + s.valor, 0);
+        document.getElementById('dash-saldo-liquido').innerText = formatarMoeda(totalRecebidoGeral - todasSaidasHistoricas);
     }
 
-    // Melhoria 4: Emissor de áudio nativo (frequência curta e limpa)
-    function executarSomAlerta() {
-        try {
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const oscilador = audioCtx.createOscillator();
-            const ganho = audioCtx.createGain();
-            
-            oscilador.type = 'sine';
-            oscilador.frequency.setValueAtTime(587.33, audioCtx.currentTime); // Nota Ré (suave e perceptível)
-            ganho.gain.setValueAtTime(0.08, audioCtx.currentTime); // Volume bem baixo/discreto
-            
-            oscilador.connect(ganho);
-            ganho.connect(audioCtx.destination);
-            
-            oscilador.start();
-            oscilador.stop(audioCtx.currentTime + 0.15); // Duração curtíssima de 150 milisegundos
-        } catch(e) {
-            console.log("Áudio bloqueado pelo navegador até primeira interação.");
-        }
+    function renderizarListasLaterais() {
+        const listaHistorico = document.getElementById('lista-historico');
+        listaHistorico.innerHTML = '';
+        historicoRenovacoes.slice(0, 15).forEach(item => {
+            const li = document.createElement('li'); li.className = 'scroll-item';
+            li.innerHTML = `
+                <div class="scroll-item-header"><span>${item.nome}</span><span style="color:var(--normal-color)">+ ${formatarMoeda(item.valor)}</span></div>
+                <div class="scroll-item-meta">Usuário: ${item.usuario} | ${new Date(item.timestamp).toLocaleDateString('pt-BR')}</div>
+            `;
+            listaHistorico.appendChild(li);
+        });
+
+        const listaSaidas = document.getElementById('lista-saidas');
+        listaSaidas.innerHTML = '';
+        lancamentosSaidas.slice(0, 15).forEach(saida => {
+            const li = document.createElement('li'); li.className = 'scroll-item';
+            li.innerHTML = `
+                <div class="scroll-item-header"><span>${saida.motivo}</span><span style="color:var(--vencido-color)">- ${formatarMoeda(saida.valor)}</span></div>
+                <div class="scroll-item-meta">Data gasto: ${saida.data.split('-').reverse().join('/')}</div>
+            `;
+            listaSaidas.appendChild(li);
+        });
     }
 
-    function checarResetMensal() {
-        const hoje = new Date();
-        const mesAnoAtual = `${hoje.getMonth()}-${hoje.getFullYear()}`;
-        const ultimoReset = localStorage.getItem('ultimoResetMes');
-
-        if (ultimoReset !== mesAnoAtual) {
-            clientes = clientes.map(c => ({ ...c, pagoNoMes: false }));
-            localStorage.setItem('ultimoResetMes', mesAnoAtual);
-            localStorage.setItem('clientes', JSON.stringify(clientes));
-        }
+    function atualizarStorageETela() {
+        localStorage.setItem('clientes', JSON.stringify(clientes));
+        localStorage.setItem('historicoRenovacoes', JSON.stringify(historicoRenovacoes));
+        localStorage.setItem('lancamentosSaidas', JSON.stringify(lancamentosSaidas));
+        filtrarETela();
     }
 
-    checarResetMensal();
-    atualizarStorageETela();
+    function exportarDados() {
+        const dados = { clientes, historicoRenovacoes, lancamentosSaidas };
+        const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `backup_financeiro_${new Date().toLocaleDateString('en-CA')}.json`;
+        a.click();
+    }
+
+    // --- ALTERAÇÃO ADICIONAL: Garante a ordenação imediata também ao importar um arquivo externo ---
+    function importarDados(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const dados = JSON.parse(e.target.result);
+                if (dados.clientes || dados.lancamentosSaidas) {
+                    clientes = dados.clientes || [];
+                    historicoRenovacoes = dados.historicoRenovacoes || [];
+                    lancamentosSaidas = dados.lancamentosSaidas || [];
+                    
+                    // Ordena antes de persistir no localStorage
+                    clientes.sort((a, b) => new Date(a.vencimento + 'T00:00:00') - new Date(b.vencimento + 'T00:00:00'));
+                    
+                    atualizarStorageETela();
+                    alert("Backup importado com sucesso!");
+                } else { alert("Arquivo de backup inválido."); }
+            } catch (err) { alert("Erro ao ler o arquivo de backup."); }
+        };
+        reader.readAsText(file);
+    }
 </script>
-
 </body>
 </html>
