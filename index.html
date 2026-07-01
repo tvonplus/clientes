@@ -654,7 +654,8 @@
             const situacao = obterSituacaoCliente(cliente.vencimento);
             const dataVenc = new Date(cliente.vencimento + 'T00:00:00');
             
-            if (dataVenc.getMonth() === mesAtual && dataVenc.getFullYear() === anoAtual && situacao !== 'emdia') {
+            // CORREÇÃO: Removido o '&& situacao !== emdia' para garantir que datas futuras no mesmo mês sejam contabilizadas
+            if (dataVenc.getMonth() === mesAtual && dataVenc.getFullYear() === anoAtual) {
                 totalAReceberMes += cliente.valor;
             } else if (situacao === 'atrasado') {
                 totalAReceberMes += cliente.valor;
